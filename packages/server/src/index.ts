@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { connectDB } from './lib/db';
+
+connectDB();
 
 const app = express();
 const port = process.env.PORT || 8080;
