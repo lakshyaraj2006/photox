@@ -1,6 +1,7 @@
 import { IUser, UserModel } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import bcrypt from "bcryptjs";
+import { generateAccessAndRefreshTokens } from "../utils/generateAccessAndRefreshTokens";
 
 const createUser = async (
     userData: Pick<IUser, "name" | "username" | "image" | "email" | "password">
@@ -18,11 +19,48 @@ const createUser = async (
 
     // TODO: remove hardcoded value for image
     userData.image = "https://ik.imagekit.io/nzh9ygzzs/user_kbvaqm.png?updatedAt=1750214536503";
-    
+
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     user = await UserModel.create({ ...userData, password: hashedPassword });
 
     return user;
 }
 
-export const AuthService = { createUser };
+const loginUser = async (
+    userData: { identifier: string, password: string }
+) => {
+    const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$/;
+    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
+
+    let user;
+
+    if (userData.identifier.match(usernameRegex)) {
+        user = await UserModel.findOne({ username: userData.identifier });
+    } else if (userData.identifier.match(emailRegex)) {
+        user = await UserModel.findOne({ email: userData.identifier });
+    }
+
+    if (user) {
+        const isValid = await bcrypt.compare(userData.password, user.password);
+
+        if (isValid) {
+
+            try {
+                const { accessToken, refreshToken } = generateAccessAndRefreshTokens(user.id, user.email);
+
+                return {accessToken, refreshToken};
+
+            } catch (error: Error | any) {
+                throw new ApiError(500, error.message);
+            }
+
+        } else {
+            throw new ApiError(400, "Invalid password!")
+        }
+    } else {
+        throw new ApiError(404, "User not found!")
+    }
+
+}
+
+export const AuthService = { createUser, loginUser };

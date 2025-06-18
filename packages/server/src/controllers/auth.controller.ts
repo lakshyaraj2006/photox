@@ -25,4 +25,32 @@ const createUser = async (req: Request, res: Response) => {
     }
 }
 
-export const AuthController = { createUser };
+const loginUser = async (req: Request, res: Response) => {
+    try {
+        const { accessToken, refreshToken } = await AuthService.loginUser(req.body);
+
+        res.cookie('refreshtoken', refreshToken, {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production'
+        })
+
+        res.status(201).json(
+            new ApiResponse(201, "Loggedin successfully", { accessToken })
+        );
+    } catch (error) {
+        if (error instanceof ApiError) {
+            res.status(error.status).json(
+                new ApiError(error.status, error.message)
+            );
+            throw new ApiError(error.status, error.message);
+        }
+
+        res.status(500).json(
+            new ApiError(500, "Error authenticating user")
+        );
+        throw new ApiError(500, "Error authenticating user");
+    }
+}
+
+export const AuthController = { createUser, loginUser };
