@@ -2,6 +2,8 @@ import { IUser, UserModel } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import bcrypt from "bcryptjs";
 import { generateAccessAndRefreshTokens } from "../utils/generateAccessAndRefreshTokens";
+import { RefreshTokenPayload } from "../types/token-payloads";
+import jwt from "jsonwebtoken";
 
 const createUser = async (
     userData: Pick<IUser, "name" | "username" | "image" | "email" | "password">
@@ -48,7 +50,7 @@ const loginUser = async (
             try {
                 const { accessToken, refreshToken } = generateAccessAndRefreshTokens(user.id, user.email);
 
-                return {accessToken, refreshToken};
+                return { accessToken, refreshToken };
 
             } catch (error: Error | any) {
                 throw new ApiError(500, error.message);
@@ -63,4 +65,17 @@ const loginUser = async (
 
 }
 
-export const AuthService = { createUser, loginUser };
+const refreshToken = async (refreshToken: string) => {
+    const { id } = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as RefreshTokenPayload;
+
+    const user = await UserModel.findById(id);
+
+    if (user) {
+        const { accessToken, refreshToken } = generateAccessAndRefreshTokens(id, user?.email);
+        return { accessToken, refreshToken };
+    } else {
+        throw new ApiError(404, "User not found")
+    }
+}
+
+export const AuthService = { createUser, loginUser, refreshToken };
