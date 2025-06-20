@@ -55,7 +55,7 @@ const loginUser = async (req: Request, res: Response) => {
 
 const refreshToken = async (req: Request, res: Response) => {
     try {
-        const {accessToken, refreshToken} = await AuthService.refreshToken(req.cookies['refreshtoken']);
+        const { accessToken, refreshToken } = await AuthService.refreshToken(req.cookies['refreshtoken']);
 
         res.cookie('refreshtoken', refreshToken, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -80,5 +80,28 @@ const refreshToken = async (req: Request, res: Response) => {
         throw new ApiError(500, "Error refreshing tokens");
     }
 }
+const logoutUser = async (req: Request, res: Response) => {
+    const cookies = req.cookies;
+    try {
+        const refreshtoken = cookies['refreshtoken'];
 
-export const AuthController = { createUser, loginUser, refreshToken };
+        if (!refreshtoken) {
+            res.status(401).json(
+                new ApiError(401, "Unauthorized request")
+            );
+            throw new ApiError(401, "Unauthorized request");
+        } else {
+            res.clearCookie('refreshtoken');
+            res.status(200).json(
+                new ApiResponse(200, "Logged out successfully")
+            );
+        }
+    } catch (error) {
+        res.status(500).json(
+            new ApiError(500, "Some error occurred")
+        );
+        throw new ApiError(500, "Some error occurred");
+    }
+}
+
+export const AuthController = { createUser, loginUser, refreshToken, logoutUser };
