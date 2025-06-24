@@ -25,7 +25,7 @@ const UserSchema = new Schema<IUser>({
     },
     image: {
         type: String,
-        required: true
+        default: 'https://res.cloudinary.com/dfubkk4o0/image/upload/v1733205975/user_kbvaqm.png'
     },
     email: {
         type: String,
