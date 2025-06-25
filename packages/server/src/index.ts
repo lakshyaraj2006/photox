@@ -3,6 +3,7 @@ import { connectDB } from './lib/db';
 import { AuthRouter } from './routes/auth.route';
 import 'dotenv/config';
 import cookieParser from 'cookie-parser';
+import { UserRouter } from './routes/user.route';
 
 connectDB();
 
@@ -11,8 +12,10 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', AuthRouter);
+app.use('/api/user', UserRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
