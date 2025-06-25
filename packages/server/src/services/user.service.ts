@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { UserModel } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
+import { uploadOnCloudinary } from "../lib/cloudinary";
 
 const getUserProfile = async (userId: string) => {
     if (!mongoose.isValidObjectId(userId)) {
@@ -15,4 +16,27 @@ const getUserProfile = async (userId: string) => {
     return user;
 }
 
-export const UserService = { getUserProfile };
+const updateUserProfile = async (userId: string, userData: { name: string, file: Express.Multer.File | undefined }) => {
+    if (!mongoose.isValidObjectId(userId)) {
+        throw new ApiError(500, "User id is invalid")
+    }
+    const { name, file } = userData;
+    let result;
+
+    let updatedUser;
+    if (file) {
+        result = await uploadOnCloudinary(file.path, userId, 'avatars/')
+
+        updatedUser = await UserModel.findByIdAndUpdate(userId, {
+            $set: { name, image: result?.secure_url }
+        })
+    }
+
+    updatedUser = await UserModel.findByIdAndUpdate(userId, {
+        $set: { name }
+    })
+
+    return updatedUser;
+}
+
+export const UserService = { getUserProfile, updateUserProfile };
