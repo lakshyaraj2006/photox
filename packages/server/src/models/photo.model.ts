@@ -1,18 +1,17 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { IAlbum } from "./album.model";
-import { IUser } from "./user.model";
 
 export interface IPhoto extends Document {
     filename: string;
     mimetype: string;
     url: string;
-    user: IUser;
-    albums?: IAlbum[];
+    publicId: string;
+    user: mongoose.Types.ObjectId;
+    albums?: mongoose.Types.ObjectId[];
     updatedAt: Date;
     createdAt: Date;
 }
 
-const PhotoSchema = new Schema<IPhoto>({
+export const PhotoSchema = new Schema<IPhoto>({
     filename: {
         type: String,
         required: true
@@ -22,6 +21,10 @@ const PhotoSchema = new Schema<IPhoto>({
         required: true
     },
     url: {
+        type: String,
+        required: true
+    },
+    publicId: {
         type: String,
         required: true
     },

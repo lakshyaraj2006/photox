@@ -1,6 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { IPhoto } from "./photo.model";
-import { IAlbum } from "./album.model";
 
 export interface IUser extends Document {
     name: string;
@@ -8,8 +6,8 @@ export interface IUser extends Document {
     image: string;
     email: string;
     password: string;
-    photos?: IPhoto[];
-    albums?: IAlbum[];
+    photos?: mongoose.Types.ObjectId[];
+    albums?: mongoose.Types.ObjectId[];
     updatedAt: Date;
     createdAt: Date;
 }

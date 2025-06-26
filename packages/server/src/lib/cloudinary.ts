@@ -25,4 +25,4 @@ const uploadOnCloudinary = async (localFilePath: string, userId: string, recursi
     }
 }
 
-export { uploadOnCloudinary };
+export { cloundinary, uploadOnCloudinary };
