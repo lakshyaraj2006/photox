@@ -4,6 +4,7 @@ export interface IPhoto extends Document {
     filename: string;
     mimetype: string;
     url: string;
+    publicId: string;
     user: mongoose.Types.ObjectId;
     albums?: mongoose.Types.ObjectId[];
     updatedAt: Date;
@@ -20,6 +21,10 @@ export const PhotoSchema = new Schema<IPhoto>({
         required: true
     },
     url: {
+        type: String,
+        required: true
+    },
+    publicId: {
         type: String,
         required: true
     },

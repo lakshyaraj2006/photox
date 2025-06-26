@@ -46,7 +46,8 @@ const uploadPhoto = async (userId: string, file: Express.Multer.File) => {
         filename: file.filename,
         mimetype: file.mimetype,
         user: userId,
-        url: result?.secure_url
+        url: result?.secure_url,
+        publicId: result?.public_id
     });
 
     await UserModel.findByIdAndUpdate(userId, {
