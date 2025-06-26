@@ -80,4 +80,33 @@ const deletePhoto = async (userId: string, photoId: string) => {
     return result === "ok";
 }
 
-export const PhotoService = { getUserPhotos, uploadPhoto, deletePhoto };
+const getPhoto = async (photoId: string) => {
+    if (!mongoose.isValidObjectId(photoId)) {
+        throw new ApiError(400, "Photo id is invalid");
+    }
+
+    const photo = await PhotoModel.findById(photoId)
+        .populate({
+            path: 'user',
+            select: '_id name username image'
+        });
+
+    if (!photo) {
+        throw new ApiError(404, "Photo was not found!");
+    }
+
+    if (photo.albums?.length) {
+        await photo.populate({
+            path: 'albums',
+            select: '_id title description user',
+            populate: {
+                path: 'user',
+                select: '_id name username image'
+            }
+        });
+    }
+
+    return photo;
+};
+
+export const PhotoService = { getUserPhotos, uploadPhoto, deletePhoto, getPhoto };
