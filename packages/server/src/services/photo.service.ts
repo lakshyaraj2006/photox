@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { PhotoModel } from "../models/photo.model";
 import { ApiError } from "../utils/ApiError";
-import { uploadOnCloudinary } from "../lib/cloudinary";
+import { cloundinary, uploadOnCloudinary } from "../lib/cloudinary";
 import { UserModel } from "../models/user.model";
 
 const getUserPhotos = async (userId: string) => {
@@ -59,4 +59,25 @@ const uploadPhoto = async (userId: string, file: Express.Multer.File) => {
     return photo;
 }
 
-export const PhotoService = { getUserPhotos, uploadPhoto };
+const deletePhoto = async (userId: string, photoId: string) => {
+    if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(photoId)) {
+        throw new ApiError(400, "User or photo id is invalid")
+    }
+
+    const photo = await PhotoModel.findById(photoId);
+    const isOwner = userId === photo?.user.toString();
+
+    if (!isOwner) throw new ApiError(401, "You are not allowed to delete this photo")
+
+    await UserModel.findByIdAndUpdate(userId, {
+        $pull: {photos: photo.id}
+    });
+
+    await PhotoModel.findByIdAndDelete(photoId);
+    
+    const result = await cloundinary.uploader.destroy(photo.publicId, { resource_type: 'image' });
+
+    return result === "ok";
+}
+
+export const PhotoService = { getUserPhotos, uploadPhoto, deletePhoto };
