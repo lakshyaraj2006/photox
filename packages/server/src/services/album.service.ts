@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { AlbumModel } from "../models/album.model"
 import { PhotoModel } from "../models/photo.model";
+import { ApiError } from "../utils/ApiError";
 
 const getUserAlbums = async (userId: string) => {
     const albums = await AlbumModel.find({ user: userId })
@@ -31,4 +32,37 @@ const getUserAlbums = async (userId: string) => {
     return populatedAlbums;
 }
 
-export const AlbumService = { getUserAlbums };
+const getAlbum = async (albumId: string) => {
+    if (!mongoose.isValidObjectId(albumId)) throw new ApiError(400, "Invalid album id")
+    const album = await AlbumModel.findById(albumId)
+        .populate(
+            {
+                path: 'user',
+                select: '_id name username image'
+            }
+        );
+
+    if (!album) throw new ApiError(404, "Album was not found!") 
+
+    if (album.photos?.length) {
+        await album.populate({
+            path: 'photos',
+            select: '_id filename url user',
+            populate: {
+                path: 'user',
+                select: '_id name username image'
+            }
+        });
+    }
+
+    if (album.collaborators?.length) {
+        await album.populate({
+            path: 'collaborators',
+            select: '_id name username image'
+        });
+    }
+
+    return album;
+}
+
+export const AlbumService = { getUserAlbums, getAlbum };
