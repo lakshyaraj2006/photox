@@ -148,4 +148,38 @@ const deleteAlbum = async (albumId: string, userId: string) => {
     return true;
 }
 
-export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum };
+const addPhotosToAlbum = async (photos: string[], albumId: string, userId: string) => {
+    if (!photos) throw new ApiError(400, "Photo(s) are required");
+
+    if (!photos?.every((elem) => mongoose.isValidObjectId(elem)))
+        throw new ApiError(400, "Photo(s) must have valid id");
+
+    // Remove duplicates from photos (in req.body) (if any)
+    let uniquePhotoIds = [...new Set(photos.map(id => id))];
+
+    const album = await AlbumModel.findById(albumId);
+
+    if (!album) throw new ApiError(404, "Album was not found!");
+
+    // Remove photos from uniquePhotoIds array, that are already present in the album
+    uniquePhotoIds = uniquePhotoIds.filter((photoId) => !album.photos?.includes(new mongoose.Types.ObjectId(photoId)));
+
+    const isOwner = album?.user.toString() === userId;
+    const isCollaborator = album?.collaborators?.includes(new mongoose.Types.ObjectId(userId));
+
+    if (!isOwner && !isCollaborator) throw new ApiError(401, "You cannot add photos to album");
+
+    for (let i = 0; i < uniquePhotoIds.length; i++) {
+        await PhotoModel.findByIdAndUpdate(uniquePhotoIds[i], {
+            $push: { albums: albumId }
+        })
+    }
+
+    await AlbumModel.findByIdAndUpdate(albumId, {
+        $push: { photos: uniquePhotoIds }
+    })
+
+    return true;
+}
+
+export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum, addPhotosToAlbum };

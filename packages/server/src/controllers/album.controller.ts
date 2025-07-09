@@ -125,4 +125,30 @@ const deleteAlbum = async (req: Request, res: Response) => {
     }
 }
 
-export const AlbumController = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum };
+const addPhotosToAlbum = async (req: Request, res: Response) => {
+    try {
+        const albumId = req.params.albumId;
+        const {photos} = req.body;
+
+        const data = await AlbumService.addPhotosToAlbum(photos, albumId, req.user!);
+
+        res.status(200).json(
+            new ApiResponse(200, "Photos added to album")
+        )
+    } catch (error) {
+        console.log(error)
+        if (error instanceof ApiError) {
+            res.status(error.status).json(
+                new ApiError(error.status, error.message)
+            );
+            throw new ApiError(error.status, error.message);
+        }
+
+        res.status(500).json(
+            new ApiError(500, "Error adding photos to album")
+        );
+        throw new ApiError(500, "Error adding photos to album");
+    }
+}
+
+export const AlbumController = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum, addPhotosToAlbum };
