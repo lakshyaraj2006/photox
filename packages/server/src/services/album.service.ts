@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { AlbumModel } from "../models/album.model"
 import { PhotoModel } from "../models/photo.model";
 import { ApiError } from "../utils/ApiError";
+import { UserModel } from "../models/user.model";
 
 const getUserAlbums = async (userId: string) => {
     const albums = await AlbumModel.find({ user: userId })
@@ -65,4 +66,45 @@ const getAlbum = async (albumId: string) => {
     return album;
 }
 
-export const AlbumService = { getUserAlbums, getAlbum };
+const createAlbum = async (title: string, description: string, photos: string[] | null, userId: string) => {
+    if (title.length === 0 || description.length === 0)
+        throw new ApiError(400, "Title and description are required")
+    let newAlbum;
+
+    if (!photos) {
+        newAlbum = await AlbumModel.create({ title, description, user: userId });
+    } else {
+
+        if (!photos?.every((elem) => mongoose.isValidObjectId(elem)))
+            throw new ApiError(400, "Photo(s) must have valid id");
+
+        // Remove duplicates from photos (in req.body) (if any)
+        const uniquePhotoIds = [...new Set(photos.map(id => id))];
+
+        newAlbum = await AlbumModel.create(
+            {
+                title,
+                description,
+                photos: uniquePhotoIds,
+                user: userId
+            },
+        );
+
+        // Add the album id to all the photos
+        for (let i = 0; i < uniquePhotoIds.length; i++) {
+            await PhotoModel.findByIdAndUpdate(uniquePhotoIds[i], {
+                $push: { albums: newAlbum.id }
+            })
+        }
+    }
+
+    await UserModel.findByIdAndUpdate(userId, {
+        $push: {
+            albums: newAlbum.id
+        }
+    })
+
+    return newAlbum;
+}
+
+export const AlbumService = { getUserAlbums, getAlbum, createAlbum };

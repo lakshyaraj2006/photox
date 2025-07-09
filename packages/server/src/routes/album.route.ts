@@ -6,5 +6,6 @@ const router = Router();
 
 router.route('/user').get(verifyJWT, AlbumController.getUserAlbums);
 router.route('/:albumId').get(AlbumController.getAlbum);
+router.route('/create').post(verifyJWT, AlbumController.createAlbum);
 
 export { router as AlbumRouter };
