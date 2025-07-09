@@ -182,4 +182,32 @@ const addPhotosToAlbum = async (photos: string[], albumId: string, userId: strin
     return true;
 }
 
-export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum, addPhotosToAlbum };
+const removePhotosFromAlbum = async (photos: string[], albumId: string, userId: string) => {
+    if (!photos) throw new ApiError(400, "Photo(s) are required");
+
+    if (!photos?.every((elem) => mongoose.isValidObjectId(elem)))
+        throw new ApiError(400, "Photo(s) must have valid id");
+
+    const album = await AlbumModel.findById(albumId);
+
+    if (!album) throw new ApiError(404, "Album was not found!");
+
+    const isOwner = album?.user.toString() === userId;
+    const isCollaborator = album?.collaborators?.includes(new mongoose.Types.ObjectId(userId));
+
+    if (!isOwner && !isCollaborator) throw new ApiError(401, "You cannot remove photos from album");
+
+    for (let i = 0; i < photos.length; i++) {
+        await PhotoModel.findByIdAndUpdate(photos[i], {
+            $pull: { albums: albumId }
+        })
+    }
+
+    await AlbumModel.findByIdAndUpdate(albumId, {
+        $pull: { photos: { $in: photos } }
+    })
+
+    return true;
+}
+
+export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum, addPhotosToAlbum, removePhotosFromAlbum };

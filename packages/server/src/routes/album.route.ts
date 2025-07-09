@@ -10,5 +10,6 @@ router.route('/create').post(verifyJWT, AlbumController.createAlbum);
 router.route('/:albumId/update').patch(verifyJWT, AlbumController.updateAlbum);
 router.route('/:albumId/delete').delete(verifyJWT, AlbumController.deleteAlbum);
 router.route('/:albumId/add-photos').post(verifyJWT, AlbumController.addPhotosToAlbum);
+router.route('/:albumId/remove-photos').post(verifyJWT, AlbumController.removePhotosFromAlbum);
 
 export { router as AlbumRouter };
