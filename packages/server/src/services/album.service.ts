@@ -125,4 +125,27 @@ const updateAlbum = async (title: string | null, description: string | null, alb
     return album;
 }
 
-export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum };
+const deleteAlbum = async (albumId: string, userId: string) => {
+    if (!mongoose.isValidObjectId(albumId) || !mongoose.isValidObjectId(userId))
+        throw new ApiError(400, "Invalid user id or album id")
+
+    const album = await AlbumModel.findById(albumId);
+
+    const isOwner = album?.user.toString() === userId;
+
+    if (!isOwner) throw new ApiError(401, "You cannot delete album");
+
+    await UserModel.findByIdAndUpdate(userId, {
+        $pull: { albums: albumId }
+    });
+
+    await PhotoModel.updateMany({}, {
+        $pull: { albums: albumId }
+    })
+
+    await AlbumModel.findByIdAndDelete(albumId);
+
+    return true;
+}
+
+export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum, deleteAlbum };
