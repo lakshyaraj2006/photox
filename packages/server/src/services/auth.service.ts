@@ -47,7 +47,7 @@ const loginUser = async (
             try {
                 const { accessToken, refreshToken } = generateAccessAndRefreshTokens(user.id, user.email);
 
-                return { accessToken, refreshToken };
+                return { accessToken, refreshToken, userId: user.id };
 
             } catch (error: Error | any) {
                 throw new ApiError(500, error.message);
@@ -69,7 +69,7 @@ const refreshToken = async (refreshToken: string) => {
 
     if (user) {
         const { accessToken, refreshToken } = generateAccessAndRefreshTokens(id, user?.email);
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, userId: user.id };
     } else {
         throw new ApiError(404, "User not found")
     }

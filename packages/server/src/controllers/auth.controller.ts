@@ -27,7 +27,7 @@ const createUser = async (req: Request, res: Response) => {
 
 const loginUser = async (req: Request, res: Response) => {
     try {
-        const { accessToken, refreshToken } = await AuthService.loginUser(req.body);
+        const { accessToken, refreshToken, userId } = await AuthService.loginUser(req.body);
 
         res.cookie('refreshtoken', refreshToken, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -36,7 +36,7 @@ const loginUser = async (req: Request, res: Response) => {
         })
 
         res.status(201).json(
-            new ApiResponse(201, "Loggedin successfully", { accessToken })
+            new ApiResponse(201, "Loggedin successfully", { accessToken, userId })
         );
     } catch (error) {
         if (error instanceof ApiError) {
@@ -55,7 +55,7 @@ const loginUser = async (req: Request, res: Response) => {
 
 const refreshToken = async (req: Request, res: Response) => {
     try {
-        const { accessToken, refreshToken } = await AuthService.refreshToken(req.cookies['refreshtoken']);
+        const { accessToken, refreshToken, userId } = await AuthService.refreshToken(req.cookies['refreshtoken']);
 
         res.cookie('refreshtoken', refreshToken, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -64,7 +64,7 @@ const refreshToken = async (req: Request, res: Response) => {
         })
 
         res.status(200).json(
-            new ApiResponse(200, "Refreshed token", { accessToken })
+            new ApiResponse(200, "Refreshed token", { accessToken, userId })
         );
     } catch (error) {
         if (error instanceof ApiError) {
