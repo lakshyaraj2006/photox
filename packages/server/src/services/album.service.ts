@@ -107,4 +107,22 @@ const createAlbum = async (title: string, description: string, photos: string[] 
     return newAlbum;
 }
 
-export const AlbumService = { getUserAlbums, getAlbum, createAlbum };
+const updateAlbum = async (title: string | null, description: string | null, albumId: string, userId: string) => {
+    if (!mongoose.isValidObjectId(albumId) || !mongoose.isValidObjectId(userId))
+        throw new ApiError(400, "Invalid user id or album id")
+
+    let album = await AlbumModel.findById(albumId);
+
+    const isOwner = album?.user.toString() === userId;
+    const isCollaborator = album?.collaborators?.includes(new mongoose.Types.ObjectId(userId));
+
+    if (!isOwner && !isCollaborator) throw new ApiError(401, "You cannot update album info");
+
+    album = await AlbumModel.findByIdAndUpdate(albumId, {
+        $set: { title: title ?? album?.title, description: description ?? album?.description }
+    })
+
+    return album;
+}
+
+export const AlbumService = { getUserAlbums, getAlbum, createAlbum, updateAlbum };
