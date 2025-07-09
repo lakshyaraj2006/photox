@@ -131,6 +131,8 @@ const deleteAlbum = async (albumId: string, userId: string) => {
 
     const album = await AlbumModel.findById(albumId);
 
+    if (!album) throw new ApiError(404, "Album was not found!");
+
     const isOwner = album?.user.toString() === userId;
 
     if (!isOwner) throw new ApiError(401, "You cannot delete album");
@@ -153,6 +155,12 @@ const addPhotosToAlbum = async (photos: string[], albumId: string, userId: strin
 
     if (!photos?.every((elem) => mongoose.isValidObjectId(elem)))
         throw new ApiError(400, "Photo(s) must have valid id");
+
+    // Check if some photos were not found
+    const photoDocs = await Promise.all(photos.map(id => PhotoModel.findById(id)));
+    if (photoDocs.some(doc => !doc)) {
+        throw new ApiError(404, "Some of the photos were not found");
+    }
 
     // Remove duplicates from photos (in req.body) (if any)
     let uniquePhotoIds = [...new Set(photos.map(id => id))];
@@ -187,6 +195,12 @@ const removePhotosFromAlbum = async (photos: string[], albumId: string, userId: 
 
     if (!photos?.every((elem) => mongoose.isValidObjectId(elem)))
         throw new ApiError(400, "Photo(s) must have valid id");
+
+    // Check if some photos were not found
+    const photoDocs = await Promise.all(photos.map(id => PhotoModel.findById(id)));
+    if (photoDocs.some(doc => !doc)) {
+        throw new ApiError(404, "Some of the photos were not found");
+    }
 
     const album = await AlbumModel.findById(albumId);
 
