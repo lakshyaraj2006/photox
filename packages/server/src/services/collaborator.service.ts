@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import { AlbumModel } from "../models/album.model";
 import { ApiError } from "../utils/ApiError";
+import { sendEmail } from "../utils/sendEmail";
+import { InvitationModel } from "../models/invitation.model";
+import { UserModel } from "../models/user.model";
+import crypto from "crypto";
 
 const checkCollboration = async (albumId: string, userId: string) => {
     if (!mongoose.isValidObjectId(albumId) || !mongoose.isValidObjectId(userId))
@@ -17,4 +21,58 @@ const checkCollboration = async (albumId: string, userId: string) => {
     return isCollaborator;
 }
 
-export const CollaboratorService = { checkCollboration };
+const collaborationInvite = async (albumId: string, email: string) => {
+    if (!albumId || !email) throw new ApiError(400, "Album or user id are required");
+    
+    if (!mongoose.isValidObjectId(albumId))
+        throw new ApiError(400, "Invalid album or user id");
+
+    const album = await AlbumModel.findById(albumId);
+    const user = await UserModel.findOne({ email });
+
+    if (!album) throw new ApiError(404, "Album was not found");
+    if (!user) throw new ApiError(404, "User was not found");
+
+    if (album.user.toString() === user.id)
+        throw new ApiError(400, "Owners can't be collaborators!");
+
+    let invitation = await InvitationModel.findOne({ albumId, userId: user.id });
+
+    if (!invitation || invitation.tokenExpiry < new Date()) {
+        const token = crypto.randomUUID();
+        invitation = await InvitationModel.create({
+            albumId,
+            userId: user.id,
+            token,
+            tokenExpiry: new Date(Date.now() + 8 * 60 * 60 * 1000)
+        });
+
+        const htmlTemplate = `<html>
+        <head>
+            <title>Join ${album.title.slice(20) + "..."} album</title>
+        </head>
+
+        <body style="font-family: sans-serif;">
+        <h3>Hi, ${user.username}</h3>
+
+        <p>You have been invited to join the <em><strong>${album.title}</strong></em></p>
+        <p>Click on the given link to join the album</p>
+
+        Link to join: <a href="${process.env.FRONTEND_URL}/collaborate/${token}?album=${album.id}" target="_blank">Click Here</a>
+
+        <strong>OR</strong>
+
+        <p>Paste the url manually: ${process.env.FRONTEND_URL}/collaborate/${token}?album=${album.id}</p>
+        
+        </body>
+        </html>`;
+
+        const response = await sendEmail(email, `Join ${album.title.slice(20) + "..."} album`, htmlTemplate);
+
+        if (response) return invitation;
+    }
+
+    return invitation;
+}
+
+export const CollaboratorService = { checkCollboration, collaborationInvite };
