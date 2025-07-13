@@ -23,7 +23,7 @@ const checkCollboration = async (albumId: string, userId: string) => {
 
 const collaborationInvite = async (albumId: string, email: string) => {
     if (!albumId || !email) throw new ApiError(400, "Album or user id are required");
-    
+
     if (!mongoose.isValidObjectId(albumId))
         throw new ApiError(400, "Invalid album or user id");
 
@@ -75,4 +75,22 @@ const collaborationInvite = async (albumId: string, email: string) => {
     return invitation;
 }
 
-export const CollaboratorService = { checkCollboration, collaborationInvite };
+const acceptInvite = async (token: string, albumId: string) => {
+    if (!token || !albumId) throw new ApiError(400, "Token or album id are required");
+
+    if (!mongoose.isValidObjectId(albumId)) throw new ApiError(400, "Invalid album id");
+
+    const invitation = await InvitationModel.findOne({ token, albumId });
+
+    if (!invitation) throw new ApiError(404, "Invalid or expired invitation! Please contact the owner.")
+
+    await AlbumModel.findByIdAndUpdate(albumId, {
+        $push: {collaborators: invitation.userId}
+    });
+
+    await invitation.deleteOne();
+
+    return true;
+}
+
+export const CollaboratorService = { checkCollboration, collaborationInvite, acceptInvite };
