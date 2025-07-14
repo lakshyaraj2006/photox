@@ -5,32 +5,25 @@ import { ApiError } from "../utils/ApiError";
 import { UserModel } from "../models/user.model";
 
 const getUserAlbums = async (userId: string) => {
-    const albums = await AlbumModel.find({ user: userId })
-        .populate(
-            {
-                path: 'user',
-                select: '_id name username image'
-            }
-        );
+    const albums = await AlbumModel.find({ 
+        $or: [
+            {user: userId},
+            {collaborators: userId}
+        ]
+    })
+    .populate([
+        {
+            path: 'user',
+            select: '_id name username image'
+        },
+        {
+            path: 'thumbnail',
+            select: '_id filename mimetype url'
+        }
+    ])
+    .select('-collaborators')
 
-    const populatedAlbums = await Promise.all(
-        albums.map(async (album) => {
-            const photos = album.photos as mongoose.Types.ObjectId[] | undefined;
-
-            if (Array.isArray(photos) && photos.length > 0) {
-                const firstPhotoId = photos[0];
-                const populatedPhoto = await PhotoModel.findById(firstPhotoId)
-                    .select('_id filename mimetype url');
-
-                album.photos = populatedPhoto ? [populatedPhoto] as any : [];
-            } else {
-                album.photos = [];
-            }
-            return album;
-        })
-    );
-
-    return populatedAlbums;
+    return albums;
 }
 
 const getAlbum = async (albumId: string) => {

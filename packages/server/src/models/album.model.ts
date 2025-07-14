@@ -34,4 +34,18 @@ export const AlbumSchema = new mongoose.Schema<IAlbum>({
     }
 }, {timestamps: true});
 
+AlbumSchema.virtual('thumbnail', {
+    ref: 'Photo',
+    localField: 'photos',
+    foreignField: '_id',
+    justOne: true,
+    options: { sort: { _id: 1 } }
+});
+
+AlbumSchema.set('toJSON', { virtuals: true, transform: (_doc, ret) => {
+    delete ret.photos;
+    return ret;
+} });
+AlbumSchema.set('toObject', { virtuals: true });
+
 export const AlbumModel = mongoose.model<IAlbum>("Album", AlbumSchema);
