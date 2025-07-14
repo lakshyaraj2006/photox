@@ -66,6 +66,8 @@ const collaborationInvite = async (albumId: string, email: string) => {
         <strong>OR</strong>
 
         <p>Paste the url manually: ${process.env.FRONTEND_URL}/collaborate/${token}?album=${album.id}</p>
+
+        <p style="color: red;">This link will expire in 8 hours</p>
         
         </body>
         </html>`;
