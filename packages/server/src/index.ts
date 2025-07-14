@@ -7,6 +7,7 @@ import { UserRouter } from './routes/user.route';
 import { PhotoRouter } from './routes/photo.route';
 import { AlbumRouter } from './routes/album.route';
 import { CollaboratorRouter } from './routes/collaborator.routes';
+import cors from "cors";
 
 connectDB();
 
@@ -16,6 +17,10 @@ const port = process.env.PORT || 8080;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
 
 app.use('/api/auth', AuthRouter);
 app.use('/api/user', UserRouter);
