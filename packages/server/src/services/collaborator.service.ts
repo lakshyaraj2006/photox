@@ -96,4 +96,25 @@ const acceptInvite = async (token: string, albumId: string) => {
     return true;
 }
 
-export const CollaboratorService = { checkCollboration, collaborationInvite, acceptInvite };
+const removeCollaborator = async (albumId: string, userId: string) => {
+    if (!albumId || !userId) throw new ApiError(400, "Album or user id are required");
+
+    if (!mongoose.isValidObjectId(albumId) || !mongoose.isValidObjectId(userId))
+        throw new ApiError(400, "Invalid album or user id");
+
+    const album = await AlbumModel.findById(albumId);
+
+    if (!album) throw new ApiError(404, "Album was not found!");
+
+    const isOwner = album?.user.toString() === userId;
+
+    if (!isOwner) throw new ApiError(401, "You cannot remove collaborator!");
+
+    await AlbumModel.findByIdAndUpdate(albumId, {
+        $pull: { collaborators: userId }
+    });
+
+    return true;
+}
+
+export const CollaboratorService = { checkCollboration, collaborationInvite, acceptInvite, removeCollaborator };
