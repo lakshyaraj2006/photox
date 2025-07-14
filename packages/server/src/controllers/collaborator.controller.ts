@@ -30,7 +30,7 @@ export const collaboratorInvite = async (req: Request, res: Response) => {
         const response = await CollaboratorService.collaborationInvite(req.params.albumId, req.body.email);
 
         res.status(200).json(
-            new ApiResponse(200, "Collaborator status fetched", response)
+            new ApiResponse(200, "Invititation sent to user's email")
         )
     } catch(error) {
         if (error instanceof ApiError) {
@@ -41,9 +41,9 @@ export const collaboratorInvite = async (req: Request, res: Response) => {
         }
 
         res.status(500).json(
-            new ApiError(500, "Error fetching collaborator status")
+            new ApiError(500, "Error sending invitation")
         );
-        throw new ApiError(500, "Error fetching collaborator status");
+        throw new ApiError(500, "Error sending invitation");
     }
 }
 

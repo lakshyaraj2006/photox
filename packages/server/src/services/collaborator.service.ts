@@ -36,6 +36,9 @@ const collaborationInvite = async (albumId: string, email: string) => {
     if (album.user.toString() === user.id)
         throw new ApiError(400, "Owners can't be collaborators!");
 
+    if (album.collaborators?.includes(user.id))
+        throw new ApiError(400, "User already added as collaborator")
+
     let invitation = await InvitationModel.findOne({ albumId, userId: user.id });
 
     if (!invitation || invitation.tokenExpiry < new Date()) {
