@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { UserRouter } from './routes/user.route';
 import { PhotoRouter } from './routes/photo.route';
 import { AlbumRouter } from './routes/album.route';
+import { CollaboratorRouter } from './routes/collaborator.routes';
 
 connectDB();
 
@@ -20,6 +21,7 @@ app.use('/api/auth', AuthRouter);
 app.use('/api/user', UserRouter);
 app.use('/api/photos', PhotoRouter);
 app.use('/api/albums', AlbumRouter);
+app.use('/api/collaborators', CollaboratorRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
