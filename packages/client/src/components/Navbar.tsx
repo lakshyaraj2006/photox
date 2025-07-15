@@ -3,11 +3,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuItem } from './ui/dropdown-menu';
 import { Avatar, AvatarImage } from './ui/avatar';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
     const [mounted, setMounted] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         setMounted(true);
@@ -46,8 +48,8 @@ export default function Navbar() {
             ></div>}
 
             <div className='flex items-center gap-4'>
-                <Button className="cursor-pointer"><LogInIcon /> Log in</Button>
-                <Button className="cursor-pointer" variant='outline'><LogInIcon /> Sign up</Button>
+                <Button className="cursor-pointer" onClick={() => navigate("/auth/login")}><LogInIcon /> Log in</Button>
+                <Button className="cursor-pointer" variant='outline' onClick={() => navigate("/auth/signup")}><LogInIcon /> Sign up</Button>
             </div>
 
             {/* <DropdownMenu>
@@ -119,8 +121,8 @@ export default function Navbar() {
                 </ul>
 
                 <div className='grid grid-cols-2 gap-4'>
-                    <Button className="cursor-pointer"><LogInIcon /> Log in</Button>
-                    <Button className="cursor-pointer" variant='outline'><LogInIcon /> Sign up</Button>
+                    <Button className="cursor-pointer" onClick={() => navigate("/auth/login")}><LogInIcon /> Log in</Button>
+                    <Button className="cursor-pointer" variant='outline' onClick={() => navigate("/auth/signup")}><LogInIcon /> Sign up</Button>
                 </div>
 
                 {/* <DropdownMenu>
