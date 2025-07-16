@@ -6,9 +6,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { LogInIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useMultistepForm from '@/hooks/useMultistepForm';
 import { cn } from '@/lib/utils';
+import axiosInstance from '@/lib/axios';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 // No changes to the schema
 const signupSchema = z.object({
@@ -42,6 +45,7 @@ const stepsFields: (keyof z.infer<typeof signupSchema>)[][] = [
 ];
 
 export default function Signup() {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -128,8 +132,33 @@ export default function Signup() {
   const { trigger } = form;
 
   const onSubmit = async (data: z.infer<typeof signupSchema>) => {
-    console.log("Form submitted successfully!");
-    console.log(data);
+    try {
+      const response = await axiosInstance.post('/auth/signup', data, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      });
+
+      const { success, message } = response.data;
+
+      if (success) {
+        toast.success(message);
+        form.reset();
+
+        setTimeout(() => {
+          navigate('/auth/login');
+        }, 2700);
+      }
+      else toast.error(message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const { message } = error.response.data;
+        toast.error(message);
+      }
+
+      toast.error("Some error occurred!")
+    }
   }
 
   const handleNext = async () => {
