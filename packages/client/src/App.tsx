@@ -4,6 +4,7 @@ import Home from "./pages/Home"
 import Login from "./pages/auth/Login"
 import { AuthLayout } from "./layouts/AuthLayout"
 import Signup from "./pages/auth/Signup"
+import PersistLogin from "./components/PersistLogin"
 
 const router = createBrowserRouter([
   {
@@ -11,8 +12,13 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       {
-        index: true,
-        element: <Home />
+        element: <PersistLogin />,
+        children: [
+          {
+            index: true,
+            element: <Home />
+          }
+        ]
       },
     ]
   },
@@ -21,12 +27,17 @@ const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       {
-        path: 'login',
-        element: <Login />
-      },
-      {
-        path: 'signup',
-        element: <Signup />
+        element: <PersistLogin />,
+        children: [
+          {
+            path: 'login',
+            element: <Login />
+          },
+          {
+            path: 'signup',
+            element: <Signup />
+          }
+        ]
       }
     ]
   }
@@ -34,7 +45,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <RouterProvider router={router}/>
+    <RouterProvider router={router} />
   )
 }
 
