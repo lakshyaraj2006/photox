@@ -6,7 +6,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LogInIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosInstance from '@/lib/axios';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+import { useAuth } from '@/hooks/useAuth';
 
 const loginSchema = z.object({
   identifier: z
@@ -18,6 +22,9 @@ const loginSchema = z.object({
 });
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { setAuth } = useAuth();
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -27,7 +34,36 @@ export default function Login() {
   });
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-    console.log(data);
+    try {
+      const response = await axiosInstance.post('/auth/login', data, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      });
+
+      const { success, message } = response.data;
+      const { accessToken, userId } = response.data.data;
+
+      if (success) {
+        setAuth({ accessToken, userId });
+        toast.success(message);
+        form.reset();
+
+        setTimeout(() => {
+          navigate('/');
+        }, 2700);
+      }
+      else toast.error(message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const { message } = error.response.data;
+        toast.error(message);
+      }
+
+      toast.error("Some error occurred!");
+    }
+
   }
 
   return (
@@ -46,7 +82,7 @@ export default function Login() {
                   <FormItem>
                     <FormLabel>Identifier</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter your username' {...field} />
+                      <Input placeholder='Enter your username or email' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
