@@ -4,12 +4,18 @@ import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuItem } from './ui/dropdown-menu';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import useLogout from '@/hooks/useLogout';
 
 export default function Navbar() {
     const [mounted, setMounted] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const { auth } = useAuth();
+    const logout = useLogout();
 
     useEffect(() => {
         setMounted(true);
@@ -22,6 +28,24 @@ export default function Navbar() {
         } else {
             sidebarRef.current.classList.remove("left-0");
             sidebarRef.current.classList.add("-left-[120%]");
+        }
+    }
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            toast.success("Logged out successfully!");
+
+            setTimeout(() => {
+                navigate("/auth/login");
+            }, 2700);
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                toast.error(error.response.data.message);
+            }
+            else {
+                toast.error("Something went wrong");
+            }
         }
     }
 
@@ -47,12 +71,12 @@ export default function Navbar() {
                 }}
             ></div>}
 
-            <div className='flex items-center gap-4'>
+            {!auth.accessToken && <div className='flex items-center gap-4'>
                 <Button className="cursor-pointer" onClick={() => navigate("/auth/login")}><LogInIcon /> Log in</Button>
                 <Button className="cursor-pointer" variant='outline' onClick={() => navigate("/auth/signup")}><LogInIcon /> Sign up</Button>
-            </div>
+            </div>}
 
-            {/* <DropdownMenu>
+            {auth.accessToken && <DropdownMenu>
                 <DropdownMenuTrigger className='cursor-pointer rounded hover:bg-slate-200 w-1/5'>
                     <div className="flex items-center justify-between px-3 py-2">
                         <div className='flex items-center gap-2'>
@@ -87,9 +111,9 @@ export default function Navbar() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'><Settings2Icon size={16} /> My Account</DropdownMenuItem>
-                    <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'><LogOutIcon size={16} /> Logout</DropdownMenuItem>
+                    <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={handleLogout}><LogOutIcon size={16} /> Logout</DropdownMenuItem>
                 </DropdownMenuContent>
-            </DropdownMenu> */}
+            </DropdownMenu>}
 
             {/* Sidebar */}
             <div ref={sidebarRef} className='px-3 py-2 absolute bg-slate-200 top-0 -left-[120%] w-1/4 min-h-screen transition-all z-10 flex flex-col justify-between'>
@@ -120,12 +144,12 @@ export default function Navbar() {
                     </li>
                 </ul>
 
-                <div className='grid grid-cols-2 gap-4'>
+                {!auth && <div className='grid grid-cols-2 gap-4'>
                     <Button className="cursor-pointer" onClick={() => navigate("/auth/login")}><LogInIcon /> Log in</Button>
                     <Button className="cursor-pointer" variant='outline' onClick={() => navigate("/auth/signup")}><LogInIcon /> Sign up</Button>
-                </div>
+                </div>}
 
-                {/* <DropdownMenu>
+                {auth && <DropdownMenu>
                     <DropdownMenuTrigger className='cursor-pointer rounded hover:bg-slate-300'>
                         <div className="flex items-center justify-between px-3 py-2">
                             <div className='flex items-center gap-2'>
@@ -160,9 +184,9 @@ export default function Navbar() {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'><Settings2Icon size={16} /> My Account</DropdownMenuItem>
-                        <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'><LogOutIcon size={16} /> Logout</DropdownMenuItem>
+                        <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={handleLogout}><LogOutIcon size={16} /> Logout</DropdownMenuItem>
                     </DropdownMenuContent>
-                </DropdownMenu> */}
+                </DropdownMenu>}
             </div>
         </nav>
     )
