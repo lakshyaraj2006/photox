@@ -137,7 +137,7 @@ export default function Navbar() {
                         <a href="/" className='flex items-center gap-4 text-sm'><LayoutDashboardIcon size={24} /> Dashboard</a>
                     </li>
                     <li>
-                        <a href="/" className='flex items-center gap-4 text-sm'><ImageIcon size={24} /> My Images</a>
+                        <a href="/photos" className='flex items-center gap-4 text-sm'><ImageIcon size={24} /> My Images</a>
                     </li>
                     <li>
                         <a href="/" className='flex items-center gap-4 text-sm'><AlbumIcon size={24} /> My Albums</a>
@@ -187,7 +187,7 @@ export default function Navbar() {
                         <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={handleLogout}><LogOutIcon size={16} /> Logout</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>}
-            </div>
+            </div>.
         </nav>
     )
 }
