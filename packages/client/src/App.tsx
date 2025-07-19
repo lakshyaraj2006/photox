@@ -7,6 +7,7 @@ import Signup from "./pages/auth/Signup"
 import PersistLogin from "./components/PersistLogin"
 import ProtectedRoutes from "./components/ProtectedRoutes"
 import GuestRoutes from "./components/GuestRoutes"
+import ProfilePage from "./pages/user/ProfilePage"
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,21 @@ const router = createBrowserRouter([
           }
         ]
       },
+      {
+        path: 'user',
+        element: <PersistLogin />,
+        children: [
+          {
+            element: <ProtectedRoutes />,
+            children: [
+              {
+                path: 'profile',
+                element: <ProfilePage />
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   {

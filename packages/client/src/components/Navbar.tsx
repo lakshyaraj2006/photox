@@ -110,7 +110,7 @@ export default function Navbar() {
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'><Settings2Icon size={16} /> My Account</DropdownMenuItem>
+                    <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={() => navigate("/user/profile")}><Settings2Icon size={16} /> My Account</DropdownMenuItem>
                     <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={handleLogout}><LogOutIcon size={16} /> Logout</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>}
@@ -183,7 +183,7 @@ export default function Navbar() {
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'><Settings2Icon size={16} /> My Account</DropdownMenuItem>
+                        <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={() => navigate("/user/profile")}><Settings2Icon size={16} /> My Account</DropdownMenuItem>
                         <DropdownMenuItem className='flex items-center gap-2 cursor-pointer' onClick={handleLogout}><LogOutIcon size={16} /> Logout</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>}

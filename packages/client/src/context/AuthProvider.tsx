@@ -15,7 +15,9 @@ export interface UserProfile {
     image: string,
     albums: string[],
     photos: string[],
-    __v: string
+    __v: string,
+    updatedAt: Date,
+    createdAt: Date
 }
 interface AuthContextType {
     auth: UserCredentials,
