@@ -29,7 +29,7 @@ const updateUserProfile = async (userId: string, userData: { name: string, file:
 
         updatedUser = await UserModel.findByIdAndUpdate(userId, {
             $set: { name, image: result?.secure_url }
-        })
+        }).select('-password');
     }
 
     updatedUser = await UserModel.findByIdAndUpdate(userId, {

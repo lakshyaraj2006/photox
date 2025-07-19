@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
+import jwt from "jsonwebtoken";
 
 const createUser = async (req: Request, res: Response) => {
     try {
@@ -74,10 +75,12 @@ const refreshToken = async (req: Request, res: Response) => {
             throw new ApiError(error.status, error.message);
         }
 
-        res.status(500).json(
-            new ApiError(500, "Error refreshing tokens")
-        );
-        throw new ApiError(500, "Error refreshing tokens");
+        if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError) {
+            res.status(401).json({ success: false, message: "Invalid or expired refresh token" });
+        } else {
+            console.error("Refresh error:", error);
+            res.status(401).json({ success: false, message: "Unauthorized" });
+        }
     }
 }
 const logoutUser = async (req: Request, res: Response) => {
