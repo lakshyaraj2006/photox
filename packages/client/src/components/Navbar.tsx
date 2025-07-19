@@ -14,7 +14,7 @@ export default function Navbar() {
     const [open, setOpen] = useState<boolean>(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const { auth } = useAuth();
+    const { auth, profile } = useAuth();
     const logout = useLogout();
 
     useEffect(() => {
@@ -82,12 +82,12 @@ export default function Navbar() {
                         <div className='flex items-center gap-2'>
 
                             <Avatar>
-                                <AvatarImage src='https://github.com/shadcn.png' className='rounded-full' />
+                                <AvatarImage src={profile?.image} className='rounded-full' />
                             </Avatar>
 
                             <div className="flex flex-col items-start">
                                 <p>Welcome</p>
-                                <p className='text-xs font-normal'>John Doe</p>
+                                <p className='text-xs font-normal'>{profile?.name}</p>
                             </div>
                         </div>
 
@@ -100,12 +100,12 @@ export default function Navbar() {
                         <div className='flex items-center gap-2'>
 
                             <Avatar>
-                                <AvatarImage src='https://github.com/shadcn.png' className='rounded-full' />
+                                <AvatarImage src={profile?.image} className='rounded-full' />
                             </Avatar>
 
-                            <div className="flex flex-col">
+                            <div className="flex flex-col items-start">
                                 <p>Welcome</p>
-                                <p className='text-xs font-normal'>John Doe</p>
+                                <p className='text-xs font-normal'>{profile?.name}</p>
                             </div>
                         </div>
                     </DropdownMenuLabel>
@@ -155,12 +155,12 @@ export default function Navbar() {
                             <div className='flex items-center gap-2'>
 
                                 <Avatar>
-                                    <AvatarImage src='https://github.com/shadcn.png' className='rounded-full' />
+                                    <AvatarImage src={profile?.image} className='rounded-full' />
                                 </Avatar>
 
                                 <div className="flex flex-col items-start">
                                     <p>Welcome</p>
-                                    <p className='text-xs font-normal'>John Doe</p>
+                                    <p className='text-xs font-normal'>{profile?.name}</p>
                                 </div>
                             </div>
 
@@ -173,12 +173,12 @@ export default function Navbar() {
                             <div className='flex items-center gap-2'>
 
                                 <Avatar>
-                                    <AvatarImage src='https://github.com/shadcn.png' className='rounded-full' />
+                                    <AvatarImage src={profile?.image} className='rounded-full' />
                                 </Avatar>
 
-                                <div className="flex flex-col">
+                                <div className="flex flex-col items-start">
                                     <p>Welcome</p>
-                                    <p className='text-xs font-normal'>John Doe</p>
+                                    <p className='text-xs font-normal'>{profile?.name}</p>
                                 </div>
                             </div>
                         </DropdownMenuLabel>

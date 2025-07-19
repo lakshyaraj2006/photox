@@ -23,7 +23,7 @@ const loginSchema = z.object({
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const { setAuth, getUserProfile } = useAuth();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -47,6 +47,7 @@ export default function Login() {
 
       if (success) {
         setAuth({ accessToken, userId });
+        await getUserProfile();
         toast.success(message);
         form.reset();
 
