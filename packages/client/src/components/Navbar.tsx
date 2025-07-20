@@ -40,7 +40,7 @@ export default function Navbar() {
     }
 
     return (
-        <nav className='flex items-center justify-between h-16 sticky top-0 bg-background/60 backdrop-blur-md shadow px-6'>
+        <nav className='flex items-center justify-between h-16 sticky top-0 bg-background/60 backdrop-blur-md shadow px-6 z-10'>
             <div className='flex items-center gap-4'>
                 <SheetMenu handleLogout={handleLogout} />
                 <Link to="/" className='font-semibold text-lg'>PhotoX</Link>

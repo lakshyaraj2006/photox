@@ -1,10 +1,13 @@
 
+import { UploadImage } from "@/components/UploadImage";
 import { useAuth } from "@/hooks/useAuth";
 import axiosInstance from "@/lib/axios";
 import { cn } from "@/lib/utils";
+import { AxiosError } from "axios";
 import { EyeIcon } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export interface Photo {
     _id: string;
@@ -55,9 +58,38 @@ export default function PhotoListings() {
         setPhotos(response.data.data);
     }
 
+    const handleImageUpload = async (file: File) => {
+        try {
+            const formData = new FormData();
+        formData.append('image', file);
+        const response = await axiosInstance.post('/photos/add', formData, {
+            headers: {
+                'Content-Type': 'multipart/formData',
+                'Authorization': `Bearer ${auth.accessToken}`
+            }
+        });
+
+        const {success, message} = response.data;
+
+        if (success) {
+            toast.success(message);
+            await fetchAllUserPhotos();
+        } else {
+            toast.error(message);
+        }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("Something went wrong!")
+            }
+        }
+    }
+
     return (
         <main className="my-6 flex flex-col justify-center overflow-hidden max-w-8xl w-full px-24 space-y-6">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3">
+            <UploadImage onFileAccepted={handleImageUpload} />
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-center">
                 {
                     photos?.map((photo, index) => (
                         <div
