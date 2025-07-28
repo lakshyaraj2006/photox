@@ -8,6 +8,8 @@ import PersistLogin from "./components/PersistLogin"
 import ProtectedRoutes from "./components/ProtectedRoutes"
 import GuestRoutes from "./components/GuestRoutes"
 import ProfilePage from "./pages/user/ProfilePage"
+import PhotoListings from "./pages/photos/PhotoListings"
+import PhotoView from "./pages/photos/PhotoView"
 
 const router = createBrowserRouter([
   {
@@ -42,6 +44,25 @@ const router = createBrowserRouter([
             ]
           }
         ]
+      },
+      {
+        path: 'photos',
+        element: <PersistLogin />,
+        children: [
+          {
+            element: <ProtectedRoutes />,
+            children: [
+              {
+                index: true,
+                element: <PhotoListings />
+              }
+            ]
+          },
+          {
+            path: ':id',
+            element: <PhotoView />
+          }
+        ]
       }
     ]
   },
@@ -68,7 +89,7 @@ const router = createBrowserRouter([
         ]
       }
     ]
-  }
+  },
 ])
 
 function App() {
