@@ -10,6 +10,7 @@ import GuestRoutes from "./components/GuestRoutes"
 import ProfilePage from "./pages/user/ProfilePage"
 import PhotoListings from "./pages/photos/PhotoListings"
 import PhotoView from "./pages/photos/PhotoView"
+import AlbumListings from "./pages/albums/AlbumListings"
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,21 @@ const router = createBrowserRouter([
           {
             path: ':id',
             element: <PhotoView />
+          }
+        ]
+      },
+      {
+        path: 'albums',
+        element: <PersistLogin />,
+        children: [
+          {
+            element: <ProtectedRoutes />,
+            children: [
+              {
+                index: true,
+                element: <AlbumListings />
+              }
+            ]
           }
         ]
       }
