@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/useAuth';
 import axiosInstance from '@/lib/axios';
 import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { EyeIcon } from 'lucide-react';
+import { Album, EyeIcon, PlusCircleIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime'
+import AddAlbum from '@/pages/albums/AddAlbum';
 
 dayjs.extend(relativeTime);
 
@@ -51,7 +52,14 @@ export default function AlbumListings() {
 
   return (
     <main className="my-6 flex flex-col justify-center overflow-hidden max-w-8xl w-full px-24 space-y-6">
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-center">
+      <Link
+        to={"/albums/add"}
+        className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl transition-colors border-blue-500 bg-blue-50 h-40"
+      >
+        <PlusCircleIcon className="w-10 h-10 text-blue-500 mb-2" />
+        <p className="text-blue-500 text-sm">Add Album</p>
+      </Link>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-baseline">
         {
           albums?.map((album, index) => (
             <Link to={`/albums/${album?._id}`} key={album?._id}>

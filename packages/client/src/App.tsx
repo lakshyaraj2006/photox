@@ -12,6 +12,7 @@ import PhotoListings from "./pages/photos/PhotoListings"
 import PhotoView from "./pages/photos/PhotoView"
 import AlbumListings from "./pages/albums/AlbumListings"
 import AlbumView from "./pages/albums/AlbumView"
+import AddAlbum from "./pages/albums/AddAlbum"
 
 const router = createBrowserRouter([
   {
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <AlbumListings />
+              },
+              {
+                path: 'add',
+                element: <AddAlbum />
               }
             ]
           },
